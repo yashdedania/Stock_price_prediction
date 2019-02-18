@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang = "en">
+   <head>
+   <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- Latest compiled and minified CSS -->
+   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+
+   <!-- jQuery library -->
+   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+
+   <!-- Popper JS -->
+   <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
+
+   <!-- Latest compiled JavaScript -->
+   <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+
+   <style type="text/css">
+      table {
+         margin-top: 10px;
+      }
+      .table td {
+         font-size: 13px;
+      }
+      .table th {
+         font-size: 14px;
+      }
+      .table-sm td, .table-sm th {
+         padding: 10px;
+      }
+      .table .thead-dark th {
+         background-color: #0965a6;
+         border-color: #015d9e;
+      }
+      .button-hold {
+         text-align: center;
+      }
+
+      .btn-primary {
+         background-color: #0965a6;
+         border-color: #015d9e;
+         color: #FFF;
+      }
+
+      .btn-primary:hover {
+         background-color: transparent;
+         color: #0965a6;
+         border-color: #015d9e;
+      }
+
+      .btn-outline-primary {
+         color: #0965a6;
+         background-color: transparent;
+         border-color: #015d9e;
+      }
+      .btn-outline-primary:hover {
+         color: #fff;
+         background-color: #0965a6;
+         border-color: #015d9e;
+      }
+      .modal-title {
+         font-size: 1.2rem;
+      }
+
+      .modal-body {
+         font-size: 0.9rem;
+      }
+
+      .form-control {
+         padding: .3rem .75rem;
+         font-size: 0.9rem;
+      }
+   </style> 
+   </head>
+
+
+   <body>
+      {% if get_flashed_messages()%}
+      <div class="alert alert-danger alert-dismissible fade show">
+            <button type="button" class="close" data-dismiss="alert">&times;</button>
+            {%- for message in get_flashed_messages() %}
+               {{ message }}
+            {%- endfor %}
+      </div>
+      {% endif%}
+
+      <div class="container">
+      <table class="table table-hover table-sm">
+         <thead class="thead-dark">
+            <tr>
+               <th></th>
+               <th>Name</th>
+               <th>Date</th>
+               <th>Ticker</th>
+               <th>Rate</th>
+               <th>Quantity</th>
+               <th>Investment</th>
+               <th>Last</th>
+            </tr>
+         </thead>
+         
+         <tbody>
+            {% for share in shares %}
+               <tr>
+                  <td><button id="" type="button" class="close" style="opacity: 0;" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=0">&times;</button></td>
+                  <td>{{ share.name.capitalize() }}</td>
+                  <td>{{ share.date.strftime('%Y-%m-%d') }}</td>
+                  <td>{{ share.ticker }}</td>
+                  <td>{{ share.rate }}</td>
+                  <td>{{ share.quantity }}</td>
+                  <td>{{ share.rate*share.quantity}}</td>
+                  <td>{{ data[share.id - 1] }}</td>
+               </tr>
+            {% endfor %}
+         </tbody>
+      </table>
+         <textarea placeholder="Enter your article here" id="myTextarea"></textarea>
+         <button class="btn btn-primary" id="article_button">Submit</button>
+         <div id="op">O/P will be displayed here</div>
+   </div>
+   <div class="button-hold">
+   <!-- Button to Open the Modal -->
+   <button type="button" class="btn btn-outline-primary
+      btn-sm" data-toggle="modal" data-target="#myModal">
+     Add Share
+   </button>
+</div>
+
+   <!-- The Modal -->
+   <div class="modal fade" id="myModal">
+     <div class="modal-dialog modal-dialog-centered">
+       <div class="modal-content">
+
+         <!-- Modal Header -->
+         <div class="modal-header">
+           <h4 class="modal-title">Share details</h4>
+           <button type="button" class="close" data-dismiss="modal">&times;</button>
+         </div>
+
+         <!-- Modal body -->
+         <div class="modal-body">
+            <div class="container">
+               <form action = "{{url_for('add')}}" method="POST">
+                  <div class="form-group">
+                  <label for="share_name">Share Name</label>
+                  <input class="form-control input-sm" type="text" name="share_name" maxlength="50" required>
+                  <br>
+                  <label for="buy_date">Buy Date</label>
+                  <input class="form-control input-sm" type="date" name="buy_date" required>
+                  <br>
+                  <label for="ticker">Ticker</label>
+                  <input class="form-control input-sm" type="text" name="ticker" maxlength="10" required>
+                  <br>
+                  <label for="rate">Rate</label>
+                  <input class="form-control input-sm" type="number" name="rate" step="0.01" required>
+                  <br>
+                  <label for="quantity">Quantity</label>
+                  <input class="form-control input-sm" type="number" name="quantity" required>
+                  <br>
+                  <button class="btn btn-primary btn-sm"type="submit" value="Submit">Add</button>
+                  </div>
+               </form>
+            </div>           
+         </div>
+
+         <!-- Modal footer -->
+<!--          <div class="modal-footer">
+           <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+            <a href="{{url_for('add')}}" class="btn btn-outline-success
+      btn-sm" role="button">Add Share</a>
+         </div>
+ -->
+       </div>
+     </div>
+   </div>
+   <script type="text/javascript">
+         
+    $('#article_button').on('click',function() {
+                $.ajax({
+                    type: "POST",
+                    url: "/",
+                    data: {"data": $('#myTextarea').val()},
+                    success: function(data) {
+                        $('#op').html(data);
+                        console.log(data)
+                    }
+                });
+             });
+   </script>
+   </body>
+</html>
